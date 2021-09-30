@@ -55,7 +55,7 @@ The save file is located under ..\\SEdit\\SEditData\\yourguid.json
 
 ## How to compile it
 Follow the [guide](https://github.com/OwlcatOpenSource/WrathModificationTemplate) for the official modding support template.
-After everything works, place the SEdit folder into "..\WrathModificationTemplate\Assets\Modifications\" and compile like in the given example (Modification Tools -> Build)
+After everything works, place the SEdit folder into "..\WrathModificationTemplate\Assets\Modifications\" and compile it like in the given example (Modification Tools -> Build)
 For debugging purposes, use the [remote console](https://github.com/OwlcatOpenSource/RemoteConsole) and select the wanted channels.
 
 
