@@ -3,7 +3,8 @@ SEdit is an experimental runtime scene editor for "Pathfinder: Wrath of the Righ
 
 ## Usage
 
-###Controls
+### Controls
+```
 Keybinds:
         CTRL+M : Settings
         W : Enter translation/ move mode
@@ -13,7 +14,7 @@ Keybinds:
         Right Arrow: Z-Axis
         Up Arrow   : Y-Axis
         Down Arrow : Inverse direction
-        
+ ```       
 ### How to use it
 After loading the game, press CTRL+M.
 You should see the following:
