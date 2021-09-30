@@ -12,14 +12,14 @@ namespace OwlcatModification.Modifications.SEdit
     public class BundleLoader : MonoBehaviour
     {
         private static readonly LogChannel Channel = LogChannelFactory.GetOrCreate("SEdit.BundleLoader");
-        
-        
+
+
         public static Dictionary<string, GameBundle> bundles = new Dictionary<string, GameBundle>();
         public static Dictionary<string, string> discBundles = new Dictionary<string, string>();
 
 
         //For UI 
-        public static Dictionary<string, bool> expandedloadedBundles = new Dictionary<string, bool>() ;
+        public static Dictionary<string, bool> expandedloadedBundles = new Dictionary<string, bool>();
         public static Dictionary<string, bool> expandedloadedDiscBundles = new Dictionary<string, bool>();
 
         /// <summary>
@@ -53,15 +53,16 @@ namespace OwlcatModification.Modifications.SEdit
                             {
                                 objects.Add(foundObject.name, foundObject as GameObject);
                             }
-                        }else if (foundObject is Sprite)
-                        {   
+                        }
+                        else if (foundObject is Sprite)
+                        {
                             if (!sprites.ContainsKey(foundObject.name))
                             {
                                 Channel.Log("Found Sprite");
                                 sprites.Add(foundObject.name, foundObject as Sprite);
                             }
                         }
-                        else if(foundObject is Mesh)
+                        else if (foundObject is Mesh)
                         {
                             if (!meshes.ContainsKey(foundObject.name))
                             {
@@ -69,7 +70,7 @@ namespace OwlcatModification.Modifications.SEdit
                                 meshes.Add(foundObject.name, foundObject as Mesh);
                             }
                         }
-                        else if(foundObject is Texture2D)
+                        else if (foundObject is Texture2D)
                         {
                             if (!textures2D.ContainsKey(foundObject.name))
                             {
@@ -77,8 +78,8 @@ namespace OwlcatModification.Modifications.SEdit
                                 textures2D.Add(foundObject.name, foundObject as Texture2D);
                             }
                         }
-                        
-                        Channel.Log($"GameObject name: {foundObject.name} path: {path}" );
+
+                        Channel.Log($"GameObject name: {foundObject.name} path: {path}");
                     }
                     Channel.Log($"Got{count} Objects");
                 }
@@ -93,7 +94,7 @@ namespace OwlcatModification.Modifications.SEdit
 
 
 
-      
+
         private void Start()
         {
             GetLoadedBundles();
@@ -107,7 +108,7 @@ namespace OwlcatModification.Modifications.SEdit
         /// <param name="bundlename"> The name of the bundle</param>
         /// <param name="tryAutoload">If the bundle exists, but isnt loaded the bundle is loaded into the game, if the argument is "true"</param>
         /// <returns></returns>
-        public static bool IsBundleLoaded(string bundlename,bool tryAutoload= false)
+        public static bool IsBundleLoaded(string bundlename, bool tryAutoload = false)
         {
             if (BundleLoader.bundles.ContainsKey(bundlename))
             {
@@ -116,7 +117,7 @@ namespace OwlcatModification.Modifications.SEdit
             }
             else
             {
-                
+
                 if (tryAutoload && BundleLoader.discBundles.ContainsKey(bundlename.Replace(" (UnityEngine.AssetBundle)", "")))
                 {
                     LoadBundleFromDisc(BundleLoader.discBundles[bundlename.Replace(" (UnityEngine.AssetBundle)", "")]);
@@ -144,7 +145,7 @@ namespace OwlcatModification.Modifications.SEdit
 
                     if (bundle.isStreamedSceneAssetBundle)
                     {
-                        Channel.Log("Found streamed scene bundle");            
+                        Channel.Log("Found streamed scene bundle");
                     }
                     else
                     {
@@ -181,18 +182,18 @@ namespace OwlcatModification.Modifications.SEdit
         /// </summary>
         private void GetBundlesFromDisc()
         {
-            string path = Application.dataPath.Replace("Wrath_Data", "")+"Bundles/";
-            Channel.Log("Trying to use bundlepath: "+path);
-           
+            string path = Application.dataPath.Replace("Wrath_Data", "") + "Bundles/";
+            Channel.Log("Trying to use bundlepath: " + path);
+
             try
             {
                 string[] fileEntries = Directory.GetFiles(path);
-                
+
                 foreach (string pathEntries in fileEntries)
                 {
                     string tmp = pathEntries.Replace(path, "");
                     discBundles.Add(tmp, pathEntries);
-                
+
                     //Channel.Log(($"Found DiskBundle {pathEntries}"));
                     expandedloadedDiscBundles.Add(tmp, false);
 

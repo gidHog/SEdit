@@ -8,7 +8,7 @@ namespace OwlcatModification.Modifications.SEdit
 {
     public class SceneSearcher : MonoBehaviour
     {
-      
+
         public string sceneName { get; private set; }
 
 
@@ -21,7 +21,7 @@ namespace OwlcatModification.Modifications.SEdit
         public class GameObjectWrapper
         {
             public GameObject gameobject;
-            
+
 
 
             public GameObjectWrapper()
@@ -42,7 +42,8 @@ namespace OwlcatModification.Modifications.SEdit
             public void fill()
             {
                 List<GameObject> childs = new List<GameObject>();
-                if (obj != null) {
+                if (obj != null)
+                {
                     foreach (Transform tmp in obj.gameobject.transform)
                     {
                         if (obj.gameobject.GetInstanceID() != tmp.gameObject.GetInstanceID())
@@ -118,12 +119,12 @@ namespace OwlcatModification.Modifications.SEdit
             {
                 hasUpdated = true;
 
-                
+
             }
 
 
 
-           
+
         }
 
         public void ReloadScene(string key)
@@ -135,15 +136,15 @@ namespace OwlcatModification.Modifications.SEdit
         }
 
 
-       
+
         void Start()
         {
-            LoadSceneElements();     
+            LoadSceneElements();
         }
 
-      
 
-        public static  int IsSceneActive(string name)
+
+        public static int IsSceneActive(string name)
         {
             //Channel.Log($"Checking for active Scene{name} contains{scenes.ContainsKey(name)}");
             scenes.Clear();
@@ -162,15 +163,15 @@ namespace OwlcatModification.Modifications.SEdit
                 int count = scenes.Values.Count;
                 SceneWrapper[] scenesWrapped = scenes.Values.ToArray();
                 int i = 0;
-                for(; i< count; i++)
+                for (; i < count; i++)
                 {
                     Channel.Log($"Checking for active Scene {scenesWrapped[i].scene.name} == {name}");
-                    if(scenesWrapped[i].scene.name == name)
+                    if (scenesWrapped[i].scene.name == name)
                     {
                         return i;
                     }
                 }
-                
+
             }
             return -1;
         }
@@ -204,7 +205,7 @@ namespace OwlcatModification.Modifications.SEdit
             }
         }
 
-     
+
         IEnumerator LoadGameObjects(SceneWrapper sceneWrapper)
         {
             foreach (GameObjectWrapper wrappedgameobject in sceneWrapper.rootGameObjects)
@@ -216,7 +217,7 @@ namespace OwlcatModification.Modifications.SEdit
                 tmp.obj = wrappedgameobject;
                 tmp.fill();
                 sceneWrapper.nodes.Add(tmp);
-                
+
             }
             yield return null;
         }
@@ -225,8 +226,8 @@ namespace OwlcatModification.Modifications.SEdit
         private void init()
         {
 
-           
+
         }
-     
+
     }
 }
