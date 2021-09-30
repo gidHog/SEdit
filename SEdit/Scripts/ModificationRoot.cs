@@ -109,24 +109,34 @@ namespace OwlcatModification.Modifications.SEdit
         /// <param name="depth">current draw offset / recursion depth</param>
         private static void ShowData(SceneSearcher.Node currentNode = null, int depth = 0)
         {
-
+            float buttonWidth = 50 * Utils.scaleFactorX;
             if (currentNode != null)
             {
                 GUILayout.BeginHorizontal();
-                GUILayout.Space((50 * depth * Utils.scaleFactorX));
+                GUILayout.Space((buttonWidth * depth));
                 if (currentNode.rootGameobjects.Count > 0)
                 {
-
-                    if (GUILayout.Button("+", GUILayout.Width(50 * Utils.scaleFactorX)))
+                    if (currentNode.isExpanded)
                     {
-                        currentNode.isExpanded = !currentNode.isExpanded;
+                        if (GUILayout.Button("-", GUILayout.Width(buttonWidth)))
+                        {
+                            currentNode.isExpanded = !currentNode.isExpanded;
+                        }
                     }
+                    else
+                    {
+                        if (GUILayout.Button("+", GUILayout.Width(buttonWidth)))
+                        {
+                            currentNode.isExpanded = !currentNode.isExpanded;
+                        }
+                    }
+                   
 
 
                 }
                 else
                 {
-                    GUILayout.Button("=", GUILayout.Width(50 * Utils.scaleFactorX));
+                    GUILayout.Button("=", GUILayout.Width(buttonWidth));
 
                 }
                 if (GUILayout.Button(currentNode.obj.gameobject.name, GUILayout.ExpandWidth(false)))
@@ -142,18 +152,28 @@ namespace OwlcatModification.Modifications.SEdit
                     {
 
                         GUILayout.BeginHorizontal();
-                        GUILayout.Space((50 * depth * Utils.scaleFactorX));
+                        GUILayout.Space((buttonWidth * depth));
                         if (node.rootGameobjects.Count > 0)
                         {
-                            if (GUILayout.Button("+", GUILayout.Width(50 * Utils.scaleFactorX)))
+                            if (node.isExpanded)
                             {
-                                node.isExpanded = !currentNode.isExpanded;
+                                if (GUILayout.Button("-", GUILayout.Width(buttonWidth)))
+                                {
+                                    node.isExpanded = !node.isExpanded;
+                                }
+                            }
+                            else
+                            {
+                                if (GUILayout.Button("+", GUILayout.Width(buttonWidth)))
+                                {
+                                    node.isExpanded = !node.isExpanded;
+                                }
                             }
 
                         }
                         else
                         {
-                            GUILayout.Button("=", GUILayout.Width(50 * Utils.scaleFactorX));
+                            GUILayout.Button("=", GUILayout.Width(buttonWidth));
 
                         }
 
