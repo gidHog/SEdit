@@ -44,7 +44,8 @@ namespace OwlcatModification.Modifications.SEdit
         private static SceneSearcher sceneSearcher = null;
         private static SaveLoad saveLoad = null;
 
-        //public static GameObject m_MainObject; // currently disabled
+
+        public static GameObject m_MainObject; 
 
         public static string modPath;
         // ReSharper disable once UnusedMember.Global
@@ -109,24 +110,34 @@ namespace OwlcatModification.Modifications.SEdit
         /// <param name="depth">current draw offset / recursion depth</param>
         private static void ShowData(SceneSearcher.Node currentNode = null, int depth = 0)
         {
-
+            float buttonWidth = 50 * Utils.scaleFactorX;
             if (currentNode != null)
             {
                 GUILayout.BeginHorizontal();
-                GUILayout.Space((50 * depth * Utils.scaleFactorX));
+                GUILayout.Space((buttonWidth * depth));
                 if (currentNode.rootGameobjects.Count > 0)
                 {
-
-                    if (GUILayout.Button("+", GUILayout.Width(50 * Utils.scaleFactorX)))
+                    if (currentNode.isExpanded)
                     {
-                        currentNode.isExpanded = !currentNode.isExpanded;
+                        if (GUILayout.Button("-", GUILayout.Width(buttonWidth)))
+                        {
+                            currentNode.isExpanded = !currentNode.isExpanded;
+                        }
                     }
+                    else
+                    {
+                        if (GUILayout.Button("+", GUILayout.Width(buttonWidth)))
+                        {
+                            currentNode.isExpanded = !currentNode.isExpanded;
+                        }
+                    }
+                   
 
 
                 }
                 else
                 {
-                    GUILayout.Button("=", GUILayout.Width(50 * Utils.scaleFactorX));
+                    GUILayout.Button("=", GUILayout.Width(buttonWidth));
 
                 }
                 if (GUILayout.Button(currentNode.obj.gameobject.name, GUILayout.ExpandWidth(false)))
@@ -142,18 +153,28 @@ namespace OwlcatModification.Modifications.SEdit
                     {
 
                         GUILayout.BeginHorizontal();
-                        GUILayout.Space((50 * depth * Utils.scaleFactorX));
+                        GUILayout.Space((buttonWidth * depth));
                         if (node.rootGameobjects.Count > 0)
                         {
-                            if (GUILayout.Button("+", GUILayout.Width(50 * Utils.scaleFactorX)))
+                            if (node.isExpanded)
                             {
-                                node.isExpanded = !currentNode.isExpanded;
+                                if (GUILayout.Button("-", GUILayout.Width(buttonWidth)))
+                                {
+                                    node.isExpanded = !node.isExpanded;
+                                }
+                            }
+                            else
+                            {
+                                if (GUILayout.Button("+", GUILayout.Width(buttonWidth)))
+                                {
+                                    node.isExpanded = !node.isExpanded;
+                                }
                             }
 
                         }
                         else
                         {
-                            GUILayout.Button("=", GUILayout.Width(50 * Utils.scaleFactorX));
+                            GUILayout.Button("=", GUILayout.Width(buttonWidth));
 
                         }
 
@@ -344,7 +365,7 @@ namespace OwlcatModification.Modifications.SEdit
 
         private static void SelectedGameObject(GameObject gmObject)
         {
-            if (m_MainCamera != null)
+            if (m_MainCamera != null && m_MainObject != null)
             {
 
                 //m_MainCamera.transform.position = new Vector3(gmObject.transform.position.x, m_MainCamera.transform.position.y, gmObject.transform.position.z);
@@ -367,24 +388,22 @@ namespace OwlcatModification.Modifications.SEdit
             {
                 Channel.Log("Got Camera");
                 inEdit = true;
-                /*savedTransform = m_MainCamera.transform;  // Currently disabled , will be enabled on the next update
+                //savedTransform = m_MainCamera.transform;  // Currently disabled , will be enabled on the next update
 		
 				m_MainObject = new GameObject();
 				m_MainObject.name = "SEditMainObject";
-				GameObject.DontDestroyOnLoad(m_MainObject);
 				m_MainObject.transform.position = m_MainCamera.transform.position;
 				m_MainObject.transform.SetParent(null);
-				*/
+                GameObject.DontDestroyOnLoad(m_MainObject);
 
-                m_MainCamera.gameObject.AddComponent<TransformGizmo>();
-                m_MainCamera.gameObject.AddComponent<SceneSearcher>();
-                m_MainCamera.gameObject.AddComponent<BundleLoader>();
-                m_MainCamera.gameObject.AddComponent<SceneEditor>();
-                m_MainCamera.gameObject.AddComponent<SaveLoad>();
+                m_MainCamera.gameObject.AddComponent<TransformGizmo>(); // needs to be on camera
 
-                sceneEditor = m_MainCamera.gameObject.GetComponent<SceneEditor>();
-                sceneSearcher = m_MainCamera.gameObject.GetComponent<SceneSearcher>();
-                saveLoad = m_MainCamera.gameObject.GetComponent<SaveLoad>();
+                sceneSearcher = m_MainObject.AddComponent<SceneSearcher>();
+                m_MainObject.AddComponent<BundleLoader>();
+                sceneEditor = m_MainObject.AddComponent<SceneEditor>();
+                saveLoad = m_MainObject.gameObject.AddComponent<SaveLoad>();
+
+               
                 sceneEditor.saveLoad = saveLoad;
                 //Requires camera!
                 sceneEditor.gizmo = m_MainCamera.gameObject.GetComponent<TransformGizmo>();
@@ -406,11 +425,11 @@ namespace OwlcatModification.Modifications.SEdit
         private static void EndEditing()
         {
             UnityEngine.Object.Destroy(m_MainCamera.gameObject.GetComponent<TransformGizmo>());
-            UnityEngine.Object.Destroy(m_MainCamera.gameObject.GetComponent<SceneSearcher>());
-            UnityEngine.Object.Destroy(m_MainCamera.gameObject.GetComponent<BundleLoader>());
-            UnityEngine.Object.Destroy(m_MainCamera.gameObject.GetComponent<SceneEditor>());
-            UnityEngine.Object.Destroy(m_MainCamera.gameObject.GetComponent<SaveLoad>());
-            UnityEngine.Object.Destroy(m_MainCamera);
+            UnityEngine.Object.Destroy(m_MainObject.GetComponent<SceneSearcher>());
+            UnityEngine.Object.Destroy(m_MainObject.GetComponent<BundleLoader>());
+            UnityEngine.Object.Destroy(m_MainObject.GetComponent<SceneEditor>());
+            UnityEngine.Object.Destroy(m_MainObject.GetComponent<SaveLoad>());
+            UnityEngine.Object.Destroy(m_MainObject);
             inEdit = false;
         }
         private static void OnGUI()
@@ -462,7 +481,7 @@ namespace OwlcatModification.Modifications.SEdit
                             SceneSearcher.scenes[SceneSearcher.scenes.Keys.ToArray()[selectedScene]].isEditable = true;
 
                             sceneEditor.gizmo = m_MainCamera.GetComponent<TransformGizmo>();
-                            sceneEditor.sceneSearcher = m_MainCamera.GetComponent<SceneSearcher>();
+                            sceneEditor.sceneSearcher = m_MainObject.GetComponent<SceneSearcher>();
 
                             sceneEditor.MakeSceneEditable(selectedScene);
                             Channel.Log("Made scene editable");

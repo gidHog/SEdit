@@ -176,103 +176,107 @@ namespace OwlcatModification.Modifications.SEdit
         void OnGUI()
         {
             float newX, newY, newZ;
-            if (currentObj != null)
+            if (gizmo != null)
             {
-                GUILayout.BeginArea(new Rect(10 * Utils.scaleFactorX, 10 * Utils.scaleFactorY, 300 * Utils.scaleFactorX, 400 * Utils.scaleFactorY));
-                GUILayout.BeginHorizontal();
-
-
-                switch (gizmo.transformType)
+                if (currentObj != null)
                 {
-                    case TransformType.Move:
-                        GUILayout.Label("Move");
-                        break;
-                    case TransformType.Rotate:
-                        GUILayout.Label("Rotate");
-                        break;
-                    case TransformType.Scale:
-                        GUILayout.Label("Scale");
-                        break;
-                    case TransformType.All:
-                        GUILayout.Label("All");
-                        break;
-                    default:
-                        GUILayout.Label("Unknown");
-                        break;
+                    GUILayout.BeginArea(new Rect(10 * Utils.scaleFactorX, 10 * Utils.scaleFactorY, 300 * Utils.scaleFactorX, 400 * Utils.scaleFactorY));
+                    GUILayout.BeginHorizontal();
+
+
+                    switch (gizmo.transformType)
+                    {
+                        case TransformType.Move:
+                            GUILayout.Label("Move");
+                            break;
+                        case TransformType.Rotate:
+                            GUILayout.Label("Rotate");
+                            break;
+                        case TransformType.Scale:
+                            GUILayout.Label("Scale");
+                            break;
+                        case TransformType.All:
+                            GUILayout.Label("All");
+                            break;
+                        default:
+                            GUILayout.Label("Unknown");
+                            break;
+                    }
+                    GUILayout.Label("Speed");
+                    gizmo.speed = float.Parse(GUILayout.TextField($"{gizmo.speed}"));
+                    GUILayout.EndHorizontal();
+                    //  foreach (Component comp in objToAdd.GetComponents(typeof(Component)))
+                    //  {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Position");
+
+                    GUILayout.BeginVertical();
+                    GUILayout.Label("X");
+                    newX = float.Parse(GUILayout.TextField($"{currentObj.transform.position.x}"));
+                    GUILayout.EndVertical();
+                    GUILayout.BeginVertical();
+                    GUILayout.Label("Y");
+                    newY = float.Parse(GUILayout.TextField($"{currentObj.transform.position.y}"));
+                    GUILayout.EndVertical();
+                    GUILayout.BeginVertical();
+                    GUILayout.Label("Z");
+                    newZ = float.Parse(GUILayout.TextField($"{currentObj.transform.position.z}"));
+                    currentObj.transform.position = new Vector3(newX, newY, newZ);
+                    GUILayout.EndVertical();
+
+                    GUILayout.EndHorizontal();
+
+                    //Rotation
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Rotation");
+                    GUILayout.BeginVertical();
+
+                    GUILayout.Label("X");
+                    newX = float.Parse(GUILayout.TextField($"{currentObj.transform.rotation.x}"));
+                    GUILayout.EndVertical();
+                    GUILayout.BeginVertical();
+                    GUILayout.Label("Y");
+                    newY = float.Parse(GUILayout.TextField($"{currentObj.transform.rotation.y}"));
+                    GUILayout.EndVertical();
+                    GUILayout.BeginVertical();
+                    GUILayout.Label("Z");
+                    newZ = float.Parse(GUILayout.TextField($"{currentObj.transform.rotation.z}"));
+
+                    currentObj.transform.rotation = new Quaternion(newX, newY, newZ, currentObj.transform.rotation.w);
+                    GUILayout.EndVertical();
+                    GUILayout.EndHorizontal();
+                    //Scale
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Scale");
+                    GUILayout.BeginVertical();
+
+                    GUILayout.Label("X");
+                    newX = float.Parse(GUILayout.TextField($"{currentObj.transform.localScale.x}"));
+                    GUILayout.EndVertical();
+                    GUILayout.BeginVertical();
+                    GUILayout.Label("Y");
+                    newY = float.Parse(GUILayout.TextField($"{currentObj.transform.localScale.y}"));
+                    GUILayout.EndVertical();
+                    GUILayout.BeginVertical();
+                    GUILayout.Label("Z");
+                    newZ = float.Parse(GUILayout.TextField($"{currentObj.transform.localScale.z}"));
+
+                    currentObj.transform.localScale = new Vector3(newX, newY, newZ);
+                    GUILayout.EndVertical();
+
+
+                    GUILayout.EndHorizontal();
+                    //  }
+                    GUILayout.EndArea();
                 }
-                GUILayout.Label("Speed");
-                gizmo.speed = float.Parse(GUILayout.TextField($"{gizmo.speed}"));
-                GUILayout.EndHorizontal();
-                //  foreach (Component comp in objToAdd.GetComponents(typeof(Component)))
-                //  {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Position");
-
-                GUILayout.BeginVertical();
-                GUILayout.Label("X");
-                newX = float.Parse(GUILayout.TextField($"{currentObj.transform.position.x}"));
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical();
-                GUILayout.Label("Y");
-                newY = float.Parse(GUILayout.TextField($"{currentObj.transform.position.y}"));
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical();
-                GUILayout.Label("Z");
-                newZ = float.Parse(GUILayout.TextField($"{currentObj.transform.position.z}"));
-                currentObj.transform.position = new Vector3(newX, newY, newZ);
-                GUILayout.EndVertical();
-
-                GUILayout.EndHorizontal();
-
-                //Rotation
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Rotation");
-                GUILayout.BeginVertical();
-
-                GUILayout.Label("X");
-                newX = float.Parse(GUILayout.TextField($"{currentObj.transform.rotation.x}"));
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical();
-                GUILayout.Label("Y");
-                newY = float.Parse(GUILayout.TextField($"{currentObj.transform.rotation.y}"));
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical();
-                GUILayout.Label("Z");
-                newZ = float.Parse(GUILayout.TextField($"{currentObj.transform.rotation.z}"));
-
-                currentObj.transform.rotation = new Quaternion(newX, newY, newZ, currentObj.transform.rotation.w);
-                GUILayout.EndVertical();
-                GUILayout.EndHorizontal();
-                //Scale
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Scale");
-                GUILayout.BeginVertical();
-
-                GUILayout.Label("X");
-                newX = float.Parse(GUILayout.TextField($"{currentObj.transform.localScale.x}"));
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical();
-                GUILayout.Label("Y");
-                newY = float.Parse(GUILayout.TextField($"{currentObj.transform.localScale.y}"));
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical();
-                GUILayout.Label("Z");
-                newZ = float.Parse(GUILayout.TextField($"{currentObj.transform.localScale.z}"));
-
-                currentObj.transform.localScale = new Vector3(newX, newY, newZ);
-                GUILayout.EndVertical();
-
-
-                GUILayout.EndHorizontal();
-                //  }
-                GUILayout.EndArea();
+                // Make a group on the center of the screen
+                if (gizmo.hasChanged)
+                {
+                    gizmo.hasChanged = false;
+                    saveLoad.UpdateSaveElement(currentObj);
+                }
             }
-            // Make a group on the center of the screen
-            if (gizmo.hasChanged)
-            {
-                gizmo.hasChanged = false;
-                saveLoad.UpdateSaveElement(currentObj);
-            }
+
         }
 
     }
