@@ -8,17 +8,15 @@ namespace OwlcatModification.Modifications.SEdit
 {
     public class SceneSearcher : MonoBehaviour
     {
-
-        public static SceneSearcher instance;
+        private static readonly LogChannel Channel = LogChannelFactory.GetOrCreate("SEdit.SceneSearcher");
+        public static SceneSearcher instance { get; set; }
 
         public string sceneName { get; private set; }
 
 
         public Scene activeScene { get; private set; }
 
-        public static Dictionary<string, SceneWrapper> scenes = new Dictionary<string, SceneWrapper>();
-        private static readonly LogChannel Channel = LogChannelFactory.GetOrCreate("SEdit.SceneSearcher");
-
+        public static Dictionary<string, SceneWrapper> scenes { get; private set; } = new Dictionary<string, SceneWrapper>();
 
         public class GameObjectWrapper
         {
@@ -39,8 +37,8 @@ namespace OwlcatModification.Modifications.SEdit
         public class Node
         {
             public GameObjectWrapper obj { get; set; } = null;
-            public Dictionary<int, Node> rootGameobjects = new Dictionary<int, Node>();
-            public bool isExpanded = false;
+            public Dictionary<int, Node> rootGameobjects { get; set; } = new Dictionary<int, Node>();
+            public bool isExpanded { get; set; } = false;
             public void fill()
             {
                 List<GameObject> childs = new List<GameObject>();
@@ -179,8 +177,12 @@ namespace OwlcatModification.Modifications.SEdit
             return -1;
         }
 
-        private void LoadSceneElements()
+        /// <summary>
+        /// Searches for active subscenes and adds them , and their content into a dictonary
+        /// </summary>
+        public void LoadSceneElements()
         {
+            scenes.Clear();
             for (int i = 0; i < SceneManager.sceneCount; i++)
             {
 
@@ -193,15 +195,6 @@ namespace OwlcatModification.Modifications.SEdit
             }
             activeScene = SceneManager.GetActiveScene();
             sceneName = SceneManager.GetActiveScene().name;
-            if (activeScene != null)
-            {
-                Debug.Log("Got active scene, with name:" + sceneName);
-                init();
-            }
-            else
-            {
-                Debug.Log("Error getting scene");
-            }
             foreach (SceneWrapper subScene in scenes.Values)
             {
                 StartCoroutine(LoadGameObjects(subScene));
@@ -224,13 +217,5 @@ namespace OwlcatModification.Modifications.SEdit
             }
             yield return null;
         }
-
-
-        private void init()
-        {
-
-
-        }
-
     }
 }

@@ -14,27 +14,16 @@ namespace OwlcatModification.Modifications.SEdit
 {
     public class SaveLoad : MonoBehaviour
     {
-
-
-        public static SaveLoad instance;
-        public static string savePath { get; set; } = "";
-
-
         private static readonly LogChannel Channel = LogChannelFactory.GetOrCreate("SEdit.SaveLoad");
 
+        public static SaveLoad instance { get; set; }
+        public static string savePath { get; set; } = "";  SEditUserData userData = new SEditUserData();
 
+        Dictionary<string, List<SEditData>> sEditDataDictionary { get; set; } = new Dictionary<string, List<SEditData>>();
 
-        SEditUserData userData = new SEditUserData();
+        Dictionary<string, SEditSceneData> sEditSceneDataDictionary { get; set; } = new Dictionary<string, SEditSceneData>();
 
-
-        List<SEditData> sEditDataArrayList = new List<SEditData>();
-
-
-
-        Dictionary<string, SEditSceneData> sEditSceneDataDictionary = new Dictionary<string, SEditSceneData>();
-
-
-        private Dictionary<string, bool> loadedScene = new Dictionary<string, bool>();
+        private Dictionary<string, bool> loadedScene { get; set; } = new Dictionary<string, bool>();
 
 
         [System.Serializable]
@@ -109,37 +98,39 @@ namespace OwlcatModification.Modifications.SEdit
 
         public void UpdateSaveElement(GameObject obj)
         {
-            int instanceID = obj.GetInstanceID();
-            foreach (SEditData data in sEditDataArrayList)
+            if (sEditDataDictionary.ContainsKey(SceneEditor.currentEditableScene))
             {
-
-                if (instanceID == data.instaceId)
+                int instanceID = obj.GetInstanceID();
+                foreach (SEditData data in sEditDataDictionary[SceneEditor.currentEditableScene])
                 {
-                    Channel.Log($"obj instanceId: {instanceID} data {data.instaceId}");
-                    data.position.x = obj.transform.position.x;
-                    data.position.y = obj.transform.position.y;
-                    data.position.z = obj.transform.position.z;
-                    data.scale.x = obj.transform.localScale.x;
-                    data.scale.y = obj.transform.localScale.y;
-                    data.scale.z = obj.transform.localScale.z;
-                    data.rotation.x = obj.transform.rotation.x;
-                    data.rotation.y = obj.transform.rotation.y;
-                    data.rotation.z = obj.transform.rotation.z;
+                    if (instanceID == data.instaceId)
+                    {
+                        data.position.x = obj.transform.position.x;
+                        data.position.y = obj.transform.position.y;
+                        data.position.z = obj.transform.position.z;
+                        data.scale.x = obj.transform.localScale.x;
+                        data.scale.y = obj.transform.localScale.y;
+                        data.scale.z = obj.transform.localScale.z;
+                        data.rotation.x = obj.transform.rotation.x;
+                        data.rotation.y = obj.transform.rotation.y;
+                        data.rotation.z = obj.transform.rotation.z;
+                        return;
+                    }
                 }
             }
         }
 
         public void RemoveSaveElement(GameObject obj)
         {
-            if (obj != null)
+            if (obj != null && sEditDataDictionary.ContainsKey(SceneEditor.currentEditableScene))
             {
                 int instanceID = obj.GetInstanceID();
-                foreach (SEditData data in sEditDataArrayList)
+                foreach (SEditData data in sEditDataDictionary[SceneEditor.currentEditableScene])
                 {
 
                     if (instanceID == data.instaceId)
                     {
-                        sEditDataArrayList.Remove(data);
+                        sEditDataDictionary[SceneEditor.currentEditableScene].Remove(data);
                         return;
                     }
                 }
@@ -150,6 +141,11 @@ namespace OwlcatModification.Modifications.SEdit
         //todo fix shit code
         public void AddSaveElement(GameObject obj, string assetPath, string assetName, Scene scene)
         {
+
+            if (!sEditDataDictionary.ContainsKey(scene.name))
+            {
+                sEditDataDictionary.Add(scene.name, new List<SEditData>());
+            }
 
             if (sEditSceneDataDictionary.ContainsKey(scene.name))
 
@@ -164,17 +160,17 @@ namespace OwlcatModification.Modifications.SEdit
                 sEditData.assetName = assetName;
                 sEditData.gameObjectName = obj.name;
                 sEditData.instaceId = obj.GetInstanceID();
-                sEditDataArrayList.Add(sEditData);
+                sEditDataDictionary[scene.name].Add(sEditData);
 
 
-                sEditSceneData.dataArray = sEditDataArrayList.ToArray();
+                sEditSceneData.dataArray = sEditDataDictionary[scene.name].ToArray();
 
 
                 userData.GUID = ModificationRoot.userData.GUID;
                 userData.usedSEditVersion = ModificationRoot.SEDITVERSION;
                 userData.sceneDataArray = sEditSceneDataDictionary.Values.ToArray();
                 Channel.Log("Scene allready in save");
-                Save();
+
             }
             else
             {
@@ -191,14 +187,14 @@ namespace OwlcatModification.Modifications.SEdit
                 sEditData.assetPath = assetPath;
                 sEditData.gameObjectName = obj.name;
                 sEditData.instaceId = obj.GetInstanceID();
-                sEditDataArrayList.Add(sEditData);
-                sEditSceneData.dataArray = sEditDataArrayList.ToArray();
+                sEditDataDictionary[scene.name].Add(sEditData);
+                sEditSceneData.dataArray = sEditDataDictionary[scene.name].ToArray();
                 sEditSceneDataDictionary.Add(scene.name, sEditSceneData);
                 userData.GUID = ModificationRoot.userData.GUID;
                 userData.usedSEditVersion = "0.01";
                 userData.sceneDataArray = sEditSceneDataDictionary.Values.ToArray();
                 Channel.Log($"Scene not in save{scene.name}");
-                Save();
+
             }
         }
 
@@ -229,7 +225,8 @@ namespace OwlcatModification.Modifications.SEdit
             }
             catch (Exception e)
             {
-                Channel.Log($"Got error while saving SaveLoad {e.Message}");
+                Utils.LogError("SaveLoad", $"Got error while saving SaveLoad {e.Message}");
+                JsonConvert.DefaultSettings = () => oldSettings;
             }
 
         }
@@ -240,6 +237,7 @@ namespace OwlcatModification.Modifications.SEdit
         {
             SceneEditor.instance.MakeSceneEditable(sceneID);
             loadedScene[seditSceneData] = true;
+
             foreach (SEditData data in sEditSceneDataDictionary[seditSceneData].dataArray)
             {
                 data.assetPath += " (UnityEngine.AssetBundle)";
@@ -270,13 +268,14 @@ namespace OwlcatModification.Modifications.SEdit
         }
         public void Load()
         {
+            JsonSerializerSettings oldSettings = JsonConvert.DefaultSettings();
             try
             {
                 string tmp = File.ReadAllText(ModificationRoot.modPath + "\\SEditData\\" + ModificationRoot.userData.GUID + ".json");
-
+                ;
                 if (tmp != null && tmp != "")
                 {
-                    JsonSerializerSettings settings = JsonConvert.DefaultSettings();
+
 
                     JsonConvert.DefaultSettings = () => new JsonSerializerSettings
                     {
@@ -302,18 +301,19 @@ namespace OwlcatModification.Modifications.SEdit
                         }
                     }
                     SceneEditor.instance.currentObj = null;
-                    JsonConvert.DefaultSettings = () => settings;
+                    JsonConvert.DefaultSettings = () => oldSettings;
                     Channel.Log($"Loaded {tmp} and userdata {userData.GUID}");
                 }
                 else
                 {
-                    Channel.Log($"Failed to load tmp is null or \"\" :{tmp}");
+                    Utils.LogError("SaveLoad", $"Failed to load tmp is null or \"\" :{tmp}");
                 }
 
             }
             catch (Exception e)
             {
-                Channel.Log($"Got error while loading Save {e.Message}");
+                Utils.LogError("SaveLoad", $"Got error while loading Save {e.Message}");
+                JsonConvert.DefaultSettings = () => oldSettings;
             }
 
 
@@ -338,6 +338,11 @@ namespace OwlcatModification.Modifications.SEdit
             if (loadedScene.ContainsKey(scene.name))
             {
                 loadedScene[scene.name] = false;
+
+            }
+            if (sEditDataDictionary.ContainsKey(scene.name))
+            {
+                sEditDataDictionary[scene.name].Clear();
             }
 
         }
@@ -367,10 +372,11 @@ namespace OwlcatModification.Modifications.SEdit
                         }
 
                         LoadSaveDataIntoScene(sData, sceneCheck);
+                        SceneEditor.instance.currentObj = null; // dont show "editor"
                     }
                     else
                     {
-                        Channel.Log($"Scenecheck <= 0 || sceneEditor = {SceneEditor.instance == null} ");
+                        Utils.LogError("SaveLoad",$"Scenecheck <= 0 || sceneEditor = {SceneEditor.instance == null} ");
                     }
                 }
                 else

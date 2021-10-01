@@ -19,7 +19,7 @@ namespace OwlcatModification.Modifications.SEdit
         private static Kingmaker.Modding.OwlcatModification Modification { get; set; }
 
         private static readonly LogChannel Channel = LogChannelFactory.GetOrCreate("SEdit");
-        public static Camera m_MainCamera;
+        public static Camera m_MainCamera { get; set; }
         [Serializable]
         public class ModificationData
         {
@@ -30,21 +30,20 @@ namespace OwlcatModification.Modifications.SEdit
 
         public static ModificationData userData;
 
-        public static string SEDITVERSION = "0.01";// current SEdit-version
-        private static bool inEdit = false; // if the editor is enabled
-        private static bool showSceneElements = false; // if scene elements are shown
-        private static bool loadBundles = false;
-        private static bool loadBundlesFromDisc = false;
-        public static int selectedScene = 0;// currently selected subscene
+        public static string SEDITVERSION { get; set; } = "0.01";// current SEdit-version
+        private static bool inEdit { get; set; } = false; // if the editor is enabled
+        private static bool showSceneElements { get; set; } = false; // if scene elements are shown
+        private static bool loadBundles { get; set; } = false;
+        private static bool loadBundlesFromDisc { get; set; } = false;
+        public static int selectedScene { get; private set; } = 0;// currently selected subscene
 
-        private static Vector3 partialShowAmount;// amount of shown bundles per page and their index
-                                                 //private static Transform savedTransform = null;
+        private static Vector3 partialShowAmount; // amount of shown bundles per page and their index x->y z = amount
 
-      
+        private static bool hasLoaded { get; set; } = false;
 
-        public static GameObject m_MainObject; 
+        public static GameObject m_MainObject { get; set; }
 
-        public static string modPath;
+        public static string modPath { get; set; }
         // ReSharper disable once UnusedMember.Global
         [OwlcatModificationEnterPoint]
         public static void Initialize(Kingmaker.Modding.OwlcatModification modification)
@@ -56,9 +55,15 @@ namespace OwlcatModification.Modifications.SEdit
             harmony.PatchAll(Assembly.GetExecutingAssembly());
             modification.OnGUI += OnGUI;
             GetUserData();
-
+            Autoload();
         }
 
+
+        private static void Autoload()
+        {
+            Init();
+            //SceneEditor.instance.Init();
+        }
 
 
         /// <summary>
@@ -107,34 +112,34 @@ namespace OwlcatModification.Modifications.SEdit
         /// <param name="depth">current draw offset / recursion depth</param>
         private static void ShowData(SceneSearcher.Node currentNode = null, int depth = 0)
         {
-            float buttonWidth = 50 * Utils.scaleFactorX;
+
             if (currentNode != null)
             {
                 GUILayout.BeginHorizontal();
-                GUILayout.Space((buttonWidth * depth));
+                GUILayout.Space((Utils.buttonWidth * depth));
                 if (currentNode.rootGameobjects.Count > 0)
                 {
                     if (currentNode.isExpanded)
                     {
-                        if (GUILayout.Button("-", GUILayout.Width(buttonWidth)))
+                        if (GUILayout.Button("-", GUILayout.Width(Utils.buttonWidth)))
                         {
                             currentNode.isExpanded = !currentNode.isExpanded;
                         }
                     }
                     else
                     {
-                        if (GUILayout.Button("+", GUILayout.Width(buttonWidth)))
+                        if (GUILayout.Button("+", GUILayout.Width(Utils.buttonWidth)))
                         {
                             currentNode.isExpanded = !currentNode.isExpanded;
                         }
                     }
-                   
+
 
 
                 }
                 else
                 {
-                    GUILayout.Button("=", GUILayout.Width(buttonWidth));
+                    GUILayout.Button("=", GUILayout.Width(Utils.buttonWidth));
 
                 }
                 if (GUILayout.Button(currentNode.obj.gameobject.name, GUILayout.ExpandWidth(false)))
@@ -150,19 +155,19 @@ namespace OwlcatModification.Modifications.SEdit
                     {
 
                         GUILayout.BeginHorizontal();
-                        GUILayout.Space((buttonWidth * depth));
+                        GUILayout.Space((Utils.buttonWidth * depth));
                         if (node.rootGameobjects.Count > 0)
                         {
                             if (node.isExpanded)
                             {
-                                if (GUILayout.Button("-", GUILayout.Width(buttonWidth)))
+                                if (GUILayout.Button("-", GUILayout.Width(Utils.buttonWidth)))
                                 {
                                     node.isExpanded = !node.isExpanded;
                                 }
                             }
                             else
                             {
-                                if (GUILayout.Button("+", GUILayout.Width(buttonWidth)))
+                                if (GUILayout.Button("+", GUILayout.Width(Utils.buttonWidth)))
                                 {
                                     node.isExpanded = !node.isExpanded;
                                 }
@@ -171,7 +176,7 @@ namespace OwlcatModification.Modifications.SEdit
                         }
                         else
                         {
-                            GUILayout.Button("=", GUILayout.Width(buttonWidth));
+                            GUILayout.Button("=", GUILayout.Width(Utils.buttonWidth));
 
                         }
 
@@ -217,13 +222,27 @@ namespace OwlcatModification.Modifications.SEdit
         private static void ShowBundle(string key)
         {
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("+", GUILayout.Width(50)))
+            if (!BundleLoader.expandedloadedBundles[key])
             {
-                BundleLoader.expandedloadedBundles[key] = !BundleLoader.expandedloadedBundles[key];
-                GUILayout.Button(key, GUILayout.ExpandWidth(false));
-                GUILayout.EndHorizontal();
+                if (GUILayout.Button("+", GUILayout.Width(Utils.buttonWidth)))
+                {
+                    BundleLoader.expandedloadedBundles[key] = !BundleLoader.expandedloadedBundles[key];
+                    GUILayout.Button(key, GUILayout.ExpandWidth(false));
+                    GUILayout.EndHorizontal();
+                }
             }
-            else if (BundleLoader.expandedloadedBundles[key])
+            else
+            {
+                if (GUILayout.Button("-", GUILayout.Width(Utils.buttonWidth)))
+                {
+                    BundleLoader.expandedloadedBundles[key] = !BundleLoader.expandedloadedBundles[key];
+                    GUILayout.Button(key, GUILayout.ExpandWidth(false));
+                    GUILayout.EndHorizontal();
+                }
+
+            }
+
+            if (BundleLoader.expandedloadedBundles[key])
             {
                 //show assets
 
@@ -231,15 +250,14 @@ namespace OwlcatModification.Modifications.SEdit
                 GUILayout.EndHorizontal();
                 BundleLoader.bundles[key].LoadBundle();
 
-
                 foreach (string assetName in BundleLoader.bundles[key].objects.Keys)
                 {
                     GUILayout.BeginHorizontal();
-                    GUILayout.Space(100);
+                    GUILayout.Space(Utils.buttonWidth * 2);
                     if (GUILayout.Button(assetName + (" (GameObject)"), GUILayout.ExpandWidth(false)))
                     {
 
-                        SceneEditor.instance.AddObjectToScene(BundleLoader.bundles[key].objects[assetName], assetName, BundleLoader.bundles[key].bundle.name);
+                        SceneEditor.instance.AddObjectToScene(BundleLoader.bundles[key].objects[assetName], assetName, BundleLoader.bundles[key].bundle.name, null, true, SceneEditor.currentEditableScene);
 
 
                     }
@@ -248,7 +266,7 @@ namespace OwlcatModification.Modifications.SEdit
                 foreach (string assetName in BundleLoader.bundles[key].sprites.Keys)
                 {
                     GUILayout.BeginHorizontal();
-                    GUILayout.Space(100);
+                    GUILayout.Space(Utils.buttonWidth * 2);
                     if (GUILayout.Button(assetName + (" (Sprite)"), GUILayout.ExpandWidth(false)))
                     {
                         //todo maybe drag and drop?
@@ -258,7 +276,7 @@ namespace OwlcatModification.Modifications.SEdit
                 foreach (string assetName in BundleLoader.bundles[key].meshes.Keys)
                 {
                     GUILayout.BeginHorizontal();
-                    GUILayout.Space(100);
+                    GUILayout.Space(Utils.buttonWidth * 2);
                     if (GUILayout.Button(assetName + (" (Mesh)"), GUILayout.ExpandWidth(false)))
                     {
                         //todo spawn create gameobject with mat etc.
@@ -269,10 +287,10 @@ namespace OwlcatModification.Modifications.SEdit
                 foreach (string assetName in BundleLoader.bundles[key].textures2D.Keys)
                 {
                     GUILayout.BeginHorizontal();
-                    GUILayout.Space(100);
+                    GUILayout.Space(Utils.buttonWidth * 2);
                     if (GUILayout.Button(assetName + (" (Texture2D)"), GUILayout.ExpandWidth(false)))
                     {
-                        //todo spawn create gameobject with mat etc.
+                        //todo
                     }
                     GUILayout.EndHorizontal();
                 }
@@ -380,17 +398,17 @@ namespace OwlcatModification.Modifications.SEdit
         private static void Init()
         {
             m_MainCamera = Camera.main;
-            Channel.Log(m_MainCamera.name);
+            //Channel.Log(m_MainCamera.name);
             if (m_MainCamera != null)
             {
-                Channel.Log("Got Camera");
+                //Channel.Log("Got Camera");
                 inEdit = true;
                 //savedTransform = m_MainCamera.transform;  // Currently disabled , will be enabled on the next update
-		
-				m_MainObject = new GameObject();
-				m_MainObject.name = "SEditMainObject";
-				m_MainObject.transform.position = m_MainCamera.transform.position;
-				m_MainObject.transform.SetParent(null);
+
+                m_MainObject = new GameObject();
+                m_MainObject.name = "SEditMainObject";
+                m_MainObject.transform.position = m_MainCamera.transform.position;
+                m_MainObject.transform.SetParent(null);
                 GameObject.DontDestroyOnLoad(m_MainObject);
 
                 m_MainCamera.gameObject.AddComponent<TransformGizmo>(); // needs to be on camera
@@ -406,7 +424,7 @@ namespace OwlcatModification.Modifications.SEdit
             }
             else
             {
-                Channel.Log("Failed to get Camera");
+                //Channel.Log("Failed to get Camera");
             }
         }
 
@@ -423,6 +441,8 @@ namespace OwlcatModification.Modifications.SEdit
             UnityEngine.Object.Destroy(m_MainObject);
             inEdit = false;
         }
+
+
         private static void OnGUI()
         {
 
@@ -436,17 +456,26 @@ namespace OwlcatModification.Modifications.SEdit
             else
             {
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button("Stop editing", GUILayout.ExpandWidth(false)))
+                if (GUILayout.Button("Unload SEdit", GUILayout.ExpandWidth(false)))
                 {
                     EndEditing();
 
                 }
-                if (GUILayout.Button("Load", GUILayout.ExpandWidth(false)))
+                if (!hasLoaded)
                 {
-                    //m_MainCamera.transform.position = savedTransform.position;
-                   
-                    SceneEditor.instance.Init();
+                    if (GUILayout.Button("Load", GUILayout.ExpandWidth(false)))
+                    {
+                        hasLoaded = true;
+                        SceneEditor.instance.Init();
+                    }
                 }
+
+                if (GUILayout.Button("Reload", GUILayout.ExpandWidth(false)))
+                {
+                    SceneSearcher.instance.LoadSceneElements();
+                }
+
+
                 if (GUILayout.Button("Save", GUILayout.ExpandWidth(false)))
                 {
                     SaveLoad.instance.Save();
@@ -456,7 +485,7 @@ namespace OwlcatModification.Modifications.SEdit
                 userData.AutoLoad = GUILayout.Toggle(userData.AutoLoad, "Use autoload");
                 if (userData.AutoLoad)
                 {
-                    //
+                    //todo
                 }
                 GUILayout.EndHorizontal();
 
@@ -472,8 +501,8 @@ namespace OwlcatModification.Modifications.SEdit
                         {
                             SceneSearcher.scenes[SceneSearcher.scenes.Keys.ToArray()[selectedScene]].isEditable = true;
 
-                          
-                           
+
+
 
                             SceneEditor.instance.MakeSceneEditable(selectedScene);
                             Channel.Log("Made scene editable");
@@ -514,6 +543,7 @@ namespace OwlcatModification.Modifications.SEdit
                 }
 
             }
+
 
         }
 
