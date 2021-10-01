@@ -1,10 +1,8 @@
-﻿using Owlcat.Runtime.Core.Logging;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using Owlcat.Runtime.Core.Logging;
 
 namespace OwlcatModification.Modifications.SEdit
 {
@@ -14,15 +12,15 @@ namespace OwlcatModification.Modifications.SEdit
         private static readonly LogChannel Channel = LogChannelFactory.GetOrCreate("SEdit.BundleLoader");
 
 
-        public static BundleLoader instance;
+        public static BundleLoader instance { get; set; }
 
-        public static Dictionary<string, GameBundle> bundles = new Dictionary<string, GameBundle>();
-        public static Dictionary<string, string> discBundles = new Dictionary<string, string>();
+        public static Dictionary<string, GameBundle> bundles { get; private set; } = new Dictionary<string, GameBundle>();
+        public static Dictionary<string, string> discBundles { get; private set; } = new Dictionary<string, string>();
 
 
         //For UI 
-        public static Dictionary<string, bool> expandedloadedBundles = new Dictionary<string, bool>();
-        public static Dictionary<string, bool> expandedloadedDiscBundles = new Dictionary<string, bool>();
+        public static Dictionary<string, bool> expandedloadedBundles { get; set; } = new Dictionary<string, bool>();
+        public static Dictionary<string, bool> expandedloadedDiscBundles { get; set; } = new Dictionary<string, bool>();
 
         /// <summary>
         /// Stores all relevant data from a loaded assetbundle, for later access
@@ -30,12 +28,12 @@ namespace OwlcatModification.Modifications.SEdit
         public class GameBundle
         {
             public AssetBundle bundle { get; set; }
-            public Dictionary<string, GameObject> objects = new Dictionary<string, GameObject>();
-            public Dictionary<string, Sprite> sprites = new Dictionary<string, Sprite>();
-            public Dictionary<string, Mesh> meshes = new Dictionary<string, Mesh>();
-            public Dictionary<string, Texture2D> textures2D = new Dictionary<string, Texture2D>();
+            public Dictionary<string, GameObject> objects { get; set; } = new Dictionary<string, GameObject>();
+            public Dictionary<string, Sprite> sprites { get; set; } = new Dictionary<string, Sprite>();
+            public Dictionary<string, Mesh> meshes { get; set; } = new Dictionary<string, Mesh>();
+            public Dictionary<string, Texture2D> textures2D { get; set; } = new Dictionary<string, Texture2D>();
 
-            private bool hasLoadedBundle = false;
+            private bool hasLoadedBundle { get; set; } = false;
             /// <summary>
             /// Fills the dictionary with the usable objects
             /// </summary>
@@ -162,6 +160,7 @@ namespace OwlcatModification.Modifications.SEdit
                             expandedloadedBundles.Add($"{bundle}", false);
                             if (expandedloadedDiscBundles.ContainsKey($"{bundle}"))
                             {
+                                //todo => doesnt work
                                 expandedloadedDiscBundles.Remove($"{bundle}");
                                 discBundles.Remove($"{bundle}");
                             }
@@ -226,7 +225,7 @@ namespace OwlcatModification.Modifications.SEdit
                 bundles.Add($"{bundle}", tmp);
                 count++;
             }
-            Channel.Log("Datapath:" + Application.dataPath + " Got " + count + " Bundles");
+            Channel.Log("Datapath:" + Application.dataPath + "|| Got " + count + " bundles");
         }
 
 

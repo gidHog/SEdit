@@ -11,19 +11,19 @@ namespace OwlcatModification.Modifications.SEdit
 
 
         private static readonly LogChannel Channel = LogChannelFactory.GetOrCreate("SEdit.SceneEditor");
-        public static SceneEditor instance;
 
 
-        private static GameObject sceneEditorObj;
-        private static GameObject userSEditObj;
+        public static SceneEditor instance { get; set; }
+        private static GameObject sceneEditorObj { get; set; }
+        private static GameObject userSEditObj { get; set; }
 
 
-        public bool hasObjectToAdd = false;
-        public GameObject currentObj = null;
-        public Transform parentTransform = null;
+        public bool hasObjectToAdd { get; set; } = false;
+        public GameObject currentObj { get; set; } = null;
+        public Transform parentTransform { get; set; } = null;
 
-        private string assetName = "";
-        private string assetPath = "";
+        private string assetName { get; set; } = "";
+        private string assetPath { get; set; } = "";
 
         public void Start()
         {
@@ -69,11 +69,16 @@ namespace OwlcatModification.Modifications.SEdit
         {
             if (TransformGizmo.instance != null)
             {
-                Channel.Log("Selected Obj");
+                Channel.Log($"Selected Obj with name {obj.name}");
                 SaveLoad.instance.UpdateSaveElement(currentObj);
-                TransformGizmo.instance.RemoveTarget(currentObj.transform);
-                Utils.HighlightColor(currentObj.transform, false);
-                this.currentObj = obj;
+                if (currentObj != null)
+                {
+                    TransformGizmo.instance.RemoveTarget(currentObj.transform);
+                    Utils.HighlightColor(currentObj.transform, false);
+                }
+
+
+                currentObj = obj;
                 Utils.HighlightColor(currentObj.transform);
                 TransformGizmo.instance.AddTarget(currentObj.transform);
             }
@@ -111,7 +116,7 @@ namespace OwlcatModification.Modifications.SEdit
                     //gizmo.AddTarget(objToAdd.transform);
                     if (SaveLoad.instance != null)
                     {
-                        SaveLoad.instance.AddSaveElement(currentObj, assetPath, assetName, SceneSearcher.scenes[currentEditableScene].scene);
+                        SaveLoad.instance.AddSaveElement(currentObj, assetPath, assetName, SceneSearcher.scenes[sceneKey].scene);
                         SaveLoad.instance.Save();
                     }
                     obj = null;
@@ -190,11 +195,11 @@ namespace OwlcatModification.Modifications.SEdit
 
 
 
-
+        float newX, newY, newZ;
 
         void OnGUI()
         {
-            float newX, newY, newZ;
+
             if (TransformGizmo.instance != null)
             {
                 if (currentObj != null)
