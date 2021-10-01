@@ -9,6 +9,8 @@ namespace OwlcatModification.Modifications.SEdit
     public class SceneSearcher : MonoBehaviour
     {
 
+        public static SceneSearcher instance;
+
         public string sceneName { get; private set; }
 
 
@@ -140,6 +142,7 @@ namespace OwlcatModification.Modifications.SEdit
         void Start()
         {
             LoadSceneElements();
+            SceneSearcher.instance = this;
         }
 
 

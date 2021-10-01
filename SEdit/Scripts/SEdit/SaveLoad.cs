@@ -15,6 +15,8 @@ namespace OwlcatModification.Modifications.SEdit
     public class SaveLoad : MonoBehaviour
     {
 
+
+        public static SaveLoad instance;
         public static string savePath { get; set; } = "";
 
 
@@ -31,7 +33,9 @@ namespace OwlcatModification.Modifications.SEdit
 
         Dictionary<string, SEditSceneData> sEditSceneDataDictionary = new Dictionary<string, SEditSceneData>();
 
-        public SceneEditor sceneEditor = null;
+
+        private Dictionary<string, bool> loadedScene = new Dictionary<string, bool>();
+
 
         [System.Serializable]
         public class Vector3S
@@ -234,11 +238,12 @@ namespace OwlcatModification.Modifications.SEdit
 
         private void LoadSaveDataIntoScene(string seditSceneData, int sceneID)
         {
-            sceneEditor.MakeSceneEditable(sceneID);
+            SceneEditor.instance.MakeSceneEditable(sceneID);
+            loadedScene[seditSceneData] = true;
             foreach (SEditData data in sEditSceneDataDictionary[seditSceneData].dataArray)
             {
                 data.assetPath += " (UnityEngine.AssetBundle)";
-                if (BundleLoader.IsBundleLoaded(data.assetPath, true) && sceneEditor != null)
+                if (BundleLoader.IsBundleLoaded(data.assetPath, true) && SceneEditor.instance != null)
                 {
                     Channel.Log($"Bundle is loaded into scene assetPath {data.assetPath}");
 
@@ -251,7 +256,7 @@ namespace OwlcatModification.Modifications.SEdit
                     gm.transform.position = new Vector3(data.position.x, data.position.y, data.position.z);
                     gm.transform.localScale = new Vector3(data.scale.x, data.scale.y, data.scale.z);
                     gm.transform.rotation.Set(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w);
-                    sceneEditor.AddObjectToScene(gm, data.assetName, BundleLoader.bundles[data.assetPath].bundle.name, null, false, seditSceneData);
+                    SceneEditor.instance.AddObjectToScene(gm, data.assetName, BundleLoader.bundles[data.assetPath].bundle.name, null, false, seditSceneData);
 
                 }
                 else
@@ -296,7 +301,7 @@ namespace OwlcatModification.Modifications.SEdit
                             Channel.Log("Scenecheck <= 0");
                         }
                     }
-                    sceneEditor.currentObj = null;
+                    SceneEditor.instance.currentObj = null;
                     JsonConvert.DefaultSettings = () => settings;
                     Channel.Log($"Loaded {tmp} and userdata {userData.GUID}");
                 }
@@ -319,36 +324,59 @@ namespace OwlcatModification.Modifications.SEdit
 
         void Start()
         {
+            SaveLoad.instance = this;
             SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.sceneUnloaded += OnSceneUnloaded;
 
         }
 
+
+        void OnSceneUnloaded(Scene scene)
+        {
+
+            Channel.Log("Unloaded currentEditableScene Scene!");
+            if (loadedScene.ContainsKey(scene.name))
+            {
+                loadedScene[scene.name] = false;
+            }
+
+        }
 
         void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             string name = scene.name;
             Channel.Log($"Scene loaded with name{name}");
+            if (!loadedScene.ContainsKey(scene.name))
+            {
+                loadedScene.Add(scene.name, false);
+            }
             foreach (string sData in sEditSceneDataDictionary.Keys)
             {
 
-                int sceneCheck = SceneSearcher.IsSceneActive(sData);
-
-                if (sceneCheck >= 0 && sceneEditor != null)
+                if (loadedScene.ContainsKey(sData) && !loadedScene[sData])
                 {
-                    //Scene is found
-                    Channel.Log("Scenecheck >= 0.Trying to add TransformGizmo");
-                    if (Camera.main.gameObject.GetComponent<TransformGizmo>() == null)
+                    int sceneCheck = SceneSearcher.IsSceneActive(sData);
+
+                    if (sceneCheck >= 0 && SceneEditor.instance != null)
                     {
-                        Camera.main.gameObject.AddComponent<TransformGizmo>();
+                        //Scene is found
+                        Channel.Log("Scenecheck >= 0.Trying to add TransformGizmo");
+                        if (Camera.main.gameObject.GetComponent<TransformGizmo>() == null)
+                        {
+                            Camera.main.gameObject.AddComponent<TransformGizmo>();
+                        }
+
+                        LoadSaveDataIntoScene(sData, sceneCheck);
                     }
-                    sceneEditor.gizmo = Camera.main.gameObject.GetComponent<TransformGizmo>();
-                    LoadSaveDataIntoScene(sData, sceneCheck);
+                    else
+                    {
+                        Channel.Log($"Scenecheck <= 0 || sceneEditor = {SceneEditor.instance == null} ");
+                    }
                 }
                 else
                 {
-                    Channel.Log($"Scenecheck <= 0 || sceneEditor = {sceneEditor == null} ");
-                }
 
+                }
             }
 
 

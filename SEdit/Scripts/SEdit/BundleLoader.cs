@@ -14,6 +14,8 @@ namespace OwlcatModification.Modifications.SEdit
         private static readonly LogChannel Channel = LogChannelFactory.GetOrCreate("SEdit.BundleLoader");
 
 
+        public static BundleLoader instance;
+
         public static Dictionary<string, GameBundle> bundles = new Dictionary<string, GameBundle>();
         public static Dictionary<string, string> discBundles = new Dictionary<string, string>();
 
@@ -99,6 +101,7 @@ namespace OwlcatModification.Modifications.SEdit
         {
             GetLoadedBundles();
             GetBundlesFromDisc();
+            BundleLoader.instance = this;
 
         }
 

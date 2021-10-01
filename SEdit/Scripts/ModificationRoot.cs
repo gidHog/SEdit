@@ -40,10 +40,7 @@ namespace OwlcatModification.Modifications.SEdit
         private static Vector3 partialShowAmount;// amount of shown bundles per page and their index
                                                  //private static Transform savedTransform = null;
 
-        public static SceneEditor sceneEditor = null;
-        private static SceneSearcher sceneSearcher = null;
-        private static SaveLoad saveLoad = null;
-
+      
 
         public static GameObject m_MainObject; 
 
@@ -242,7 +239,7 @@ namespace OwlcatModification.Modifications.SEdit
                     if (GUILayout.Button(assetName + (" (GameObject)"), GUILayout.ExpandWidth(false)))
                     {
 
-                        sceneEditor.AddObjectToScene(BundleLoader.bundles[key].objects[assetName], assetName, BundleLoader.bundles[key].bundle.name);
+                        SceneEditor.instance.AddObjectToScene(BundleLoader.bundles[key].objects[assetName], assetName, BundleLoader.bundles[key].bundle.name);
 
 
                     }
@@ -369,7 +366,7 @@ namespace OwlcatModification.Modifications.SEdit
             {
 
                 //m_MainCamera.transform.position = new Vector3(gmObject.transform.position.x, m_MainCamera.transform.position.y, gmObject.transform.position.z);
-                sceneEditor.SelectObject(gmObject);
+                SceneEditor.instance.SelectObject(gmObject);
 
             }
 
@@ -398,16 +395,10 @@ namespace OwlcatModification.Modifications.SEdit
 
                 m_MainCamera.gameObject.AddComponent<TransformGizmo>(); // needs to be on camera
 
-                sceneSearcher = m_MainObject.AddComponent<SceneSearcher>();
+                m_MainObject.AddComponent<SceneSearcher>();
                 m_MainObject.AddComponent<BundleLoader>();
-                sceneEditor = m_MainObject.AddComponent<SceneEditor>();
-                saveLoad = m_MainObject.gameObject.AddComponent<SaveLoad>();
-
-               
-                sceneEditor.saveLoad = saveLoad;
-                //Requires camera!
-                sceneEditor.gizmo = m_MainCamera.gameObject.GetComponent<TransformGizmo>();
-                sceneEditor.sceneSearcher = sceneSearcher;
+                m_MainObject.AddComponent<SceneEditor>();
+                m_MainObject.AddComponent<SaveLoad>();
 
                 partialShowAmount.x = 0;
                 partialShowAmount.y = 100;
@@ -453,11 +444,12 @@ namespace OwlcatModification.Modifications.SEdit
                 if (GUILayout.Button("Load", GUILayout.ExpandWidth(false)))
                 {
                     //m_MainCamera.transform.position = savedTransform.position;
-                    sceneEditor.Init();
+                   
+                    SceneEditor.instance.Init();
                 }
                 if (GUILayout.Button("Save", GUILayout.ExpandWidth(false)))
                 {
-                    saveLoad.Save();
+                    SaveLoad.instance.Save();
                     Modification.SaveData(userData);
 
                 }
@@ -480,14 +472,14 @@ namespace OwlcatModification.Modifications.SEdit
                         {
                             SceneSearcher.scenes[SceneSearcher.scenes.Keys.ToArray()[selectedScene]].isEditable = true;
 
-                            sceneEditor.gizmo = m_MainCamera.GetComponent<TransformGizmo>();
-                            sceneEditor.sceneSearcher = m_MainObject.GetComponent<SceneSearcher>();
+                          
+                           
 
-                            sceneEditor.MakeSceneEditable(selectedScene);
+                            SceneEditor.instance.MakeSceneEditable(selectedScene);
                             Channel.Log("Made scene editable");
-                            if (sceneSearcher != null)
+                            if (SceneSearcher.instance != null)
                             {
-                                sceneSearcher.ReloadScene(SceneSearcher.scenes.Keys.ToArray()[selectedScene]);
+                                SceneSearcher.instance.ReloadScene(SceneSearcher.scenes.Keys.ToArray()[selectedScene]);
 
                             }
                             else
