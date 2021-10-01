@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using CommandUndoRedo;
-using Owlcat.Runtime.Visual.RenderPipeline.RendererFeatures.Highlighting;
+
 
 namespace RuntimeGizmos
 {
@@ -134,10 +134,14 @@ namespace RuntimeGizmos
         [SerializeField]
         public Material outlineMaterial;
 
+
+
+        public static TransformGizmo instance;
         void Awake()
         {
             myCamera = GetComponent<Camera>();
             SetMaterial();
+            instance = this;
         }
 
         void OnEnable()
