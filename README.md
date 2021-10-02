@@ -1,5 +1,5 @@
 # SEdit
-SEdit is an experimental runtime scene editor for "Pathfinder: Wrath of the Righteous". It's currently in very early development and isn't recommended for end user usage. For upcoming updates / features and fixes, you can visit the [trello board](https://trello.com/b/dSJWbnOi/sedit)
+SEdit is an experimental runtime scene editor for "Pathfinder: Wrath of the Righteous". It's currently in very early development and isn't recommended for inexperienced users . For upcoming updates / features and fixes, you can visit the [trello board](https://trello.com/b/dSJWbnOi/sedit)
 
 ## Usage
 
@@ -16,7 +16,7 @@ Keybinds:
         Down Arrow : Inverse direction
  ```       
 ### How to use it
-After loading the game, press CTRL+M.
+After starting the game and loading a save, press CTRL+M.
 You should see the following:
 ![1](https://user-images.githubusercontent.com/64482285/135374798-7f2f6d2a-de94-4d77-96c8-140e766cd16f.png)
 Click on settings.
@@ -30,7 +30,7 @@ Now select the option "Show scenes"
 Look for the subscene you want to edit, usually \*\_static and press the button "Make current scene editable"
 ![4](https://user-images.githubusercontent.com/64482285/135374807-26e9e1d8-3cbe-4d7c-8380-5652d827d0de.png)
 
-You should see the following changes:
+You should see the following changes:  
 ![5](https://user-images.githubusercontent.com/64482285/135374817-cfa3e82b-86c6-4293-9c4d-5b0c031928f9.png)
 
 Deselect "Show scenes" and select "Show active Bundles".
@@ -40,6 +40,12 @@ With "+" you can expand the bundle .You can select the item you want with shown 
 After selecting your object, you can close the overlay with CTRL+M.
 With right-click, you can place the object at your desired position (Raycast)
 ![7](https://user-images.githubusercontent.com/64482285/135374824-d3938e8d-e9aa-4f43-bd71-a9e4a5a40960.png)
+
+You can search for a specific bundle, like this:  
+![search1](https://user-images.githubusercontent.com/64482285/135726861-de7771be-49d3-4e82-81e2-4a6dd879d333.png)
+
+You can increase the amount of shown bundle the following:  
+![stepsize1](https://user-images.githubusercontent.com/64482285/135726863-8e9cb1c2-8d62-4435-913d-3f41d21f00af.png)
 
 If everything worked, you'll be going to see your selected object with a glowing border.
 ![8](https://user-images.githubusercontent.com/64482285/135374826-a22b446d-bb9c-4371-8ddd-333b9570e150.png)
@@ -68,3 +74,5 @@ Copy the new folder in *Build/*  to **%userprofile%\appdata\locallow\Owlcat Game
   "EnabledModifications": [ "SEdit" ] 
 }
 ```
+
+

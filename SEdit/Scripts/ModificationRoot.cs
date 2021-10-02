@@ -39,6 +39,7 @@ namespace OwlcatModification.Modifications.SEdit
 
         private static Vector3 partialShowAmount; // amount of shown bundles per page and their index x->y z = amount
 
+        private static string searchStringBundles { get; set; } = "";
         private static bool hasLoaded { get; set; } = false;
 
         public static GameObject m_MainObject { get; set; }
@@ -312,8 +313,18 @@ namespace OwlcatModification.Modifications.SEdit
 
             foreach (string key in BundleLoader.expandedloadedBundles.Keys)
             {
+                if (searchStringBundles == "" || searchStringBundles.Length == 0)
+                {
+                    ShowBundle(key);
+                }
+                else
+                {
+                    if (key.Contains(searchStringBundles))
+                    {
+                        ShowBundle(key);
+                    }
+                }
 
-                ShowBundle(key);
             }
 
 
@@ -351,12 +362,19 @@ namespace OwlcatModification.Modifications.SEdit
         private static void ShowDiscBundles()
         {
 
-
-
             foreach (string key in BundleLoader.expandedloadedDiscBundles.Keys.Skip((int)partialShowAmount.x).Take((int)partialShowAmount.y))
             {
-
-                ShowDiscBundle(key);
+                if (searchStringBundles == "" || searchStringBundles.Length == 0)
+                {
+                    ShowDiscBundle(key);
+                }
+                else
+                {
+                    if (key.Contains(searchStringBundles))
+                    {
+                        ShowDiscBundle(key);
+                    }
+                }
             }
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("<="))
@@ -364,11 +382,17 @@ namespace OwlcatModification.Modifications.SEdit
                 partialShowAmount.x -= partialShowAmount.z;
                 if (partialShowAmount.x < 0) partialShowAmount.x = 0;
             }
-            if (GUILayout.Button("=>"))
+
+            if (partialShowAmount.x <= BundleLoader.expandedloadedDiscBundles.Count)
             {
-                partialShowAmount.x += partialShowAmount.z;
-                if (partialShowAmount.x > BundleLoader.expandedloadedDiscBundles.Count) partialShowAmount.x = BundleLoader.expandedloadedDiscBundles.Count;
+                if (GUILayout.Button("=>"))
+                {
+                    partialShowAmount.x += partialShowAmount.z;
+                    if (partialShowAmount.x > BundleLoader.expandedloadedDiscBundles.Count) partialShowAmount.x = BundleLoader.expandedloadedDiscBundles.Count;
+                }
             }
+            GUILayout.Label("Display amount");
+            partialShowAmount.y = float.Parse(GUILayout.TextField($"{partialShowAmount.y}"));
             GUILayout.EndHorizontal();
         }
 
@@ -448,7 +472,7 @@ namespace OwlcatModification.Modifications.SEdit
 
             if (!inEdit)
             {
-                if (GUILayout.Button("Load SEdit into scene"))
+                if (GUILayout.Button("Load SEdit"))
                 {
                     Init();
                 };
@@ -481,6 +505,10 @@ namespace OwlcatModification.Modifications.SEdit
                     SaveLoad.instance.Save();
                     Modification.SaveData(userData);
 
+                }
+                if (GUILayout.Button("Hide editor", GUILayout.ExpandWidth(false)))
+                {
+                    SceneEditor.instance.DeselectCurrentObj();
                 }
                 userData.AutoLoad = GUILayout.Toggle(userData.AutoLoad, "Use autoload");
                 if (userData.AutoLoad)
@@ -527,16 +555,28 @@ namespace OwlcatModification.Modifications.SEdit
 
                     ShowSceneData(SceneSearcher.scenes[SceneSearcher.scenes.Keys.ToArray()[selectedScene]]);
                 }
+                GUILayout.BeginHorizontal();
                 loadBundles = GUILayout.Toggle(loadBundles, "Show active bundles");
                 if (loadBundles)
                 {
-                    GUILayout.Label("================================================================");
+                    searchStringBundles = GUILayout.TextField(searchStringBundles);
+                }
+                GUILayout.EndHorizontal();
+                if (loadBundles)
+                {
+                    GUILayout.Label("", GUI.skin.horizontalSlider);
                     ShowBundles();
                 }
+                GUILayout.BeginHorizontal();
                 loadBundlesFromDisc = GUILayout.Toggle(loadBundlesFromDisc, "Get bundles from Disk (RAM!)");
                 if (loadBundlesFromDisc)
                 {
-                    GUILayout.Label("================================================================");
+                    searchStringBundles = GUILayout.TextField(searchStringBundles);
+                }
+                GUILayout.EndHorizontal();
+                if (loadBundlesFromDisc)
+                {
+                    GUILayout.Label("", GUI.skin.horizontalSlider);
                     ShowDiscBundles();
 
 
