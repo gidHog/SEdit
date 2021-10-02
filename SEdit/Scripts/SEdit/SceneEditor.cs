@@ -89,6 +89,17 @@ namespace OwlcatModification.Modifications.SEdit
 
         }
 
+        public void DeselectCurrentObj()
+        {
+            if (currentObj != null && TransformGizmo.instance != null)
+            {
+                SaveLoad.instance.UpdateSaveElement(currentObj);
+                TransformGizmo.instance.RemoveTarget(currentObj.transform);
+                Utils.HighlightColor(currentObj.transform, false);
+                currentObj = null;
+            }
+        }
+
         public void AddObjectToScene(GameObject obj, string assetName = "please enter a name", string assetPath = "please enter a path", Transform at = null, bool waitForMouseClick = true, string sceneKey = "")
         {
 
@@ -148,8 +159,8 @@ namespace OwlcatModification.Modifications.SEdit
                         currentObj = GameObject.Instantiate(currentObj, userSEditObj.transform);
                         currentObj.transform.position = target.position;
                         Utils.HighlightColor(currentObj.transform);
-                        Channel.Log($"Trying to reload with key {SceneSearcher.scenes.Keys.ToArray()[ModificationRoot.selectedScene]}");
-                        SceneSearcher.instance.ReloadScene(SceneSearcher.scenes.Keys.ToArray()[ModificationRoot.selectedScene]);
+                        Channel.Log($"Trying to reload with key {SceneSearcher.scenes[currentEditableScene]}");
+                        SceneSearcher.instance.ReloadScene(currentEditableScene);
                     }
                     else
                     {
@@ -158,7 +169,7 @@ namespace OwlcatModification.Modifications.SEdit
                     }
                     if (SaveLoad.instance != null)
                     {
-                        SaveLoad.instance.AddSaveElement(currentObj, assetPath, assetName, SceneSearcher.scenes.Values.ToArray()[ModificationRoot.selectedScene].scene);
+                        SaveLoad.instance.AddSaveElement(currentObj, assetPath, assetName, SceneSearcher.scenes[currentEditableScene].scene);
                         SaveLoad.instance.Save();
                     }
                     else
@@ -189,8 +200,8 @@ namespace OwlcatModification.Modifications.SEdit
         public void RemoveSelectedGameObject()
         {
             SaveLoad.instance.RemoveSaveElement(currentObj);
-            GameObject.Destroy(currentObj);
-            SceneSearcher.instance.ReloadScene(SceneSearcher.scenes.Keys.ToArray()[ModificationRoot.selectedScene]);
+            Object.Destroy(currentObj);
+            SceneSearcher.instance.ReloadScene(currentEditableScene);
         }
 
 
@@ -229,8 +240,6 @@ namespace OwlcatModification.Modifications.SEdit
                     GUILayout.Label("Speed");
                     TransformGizmo.instance.speed = float.Parse(GUILayout.TextField($"{TransformGizmo.instance.speed}"));
                     GUILayout.EndHorizontal();
-                    //  foreach (Component comp in objToAdd.GetComponents(typeof(Component)))
-                    //  {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Position");
 

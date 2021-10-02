@@ -815,7 +815,7 @@ namespace RuntimeGizmos
                         totalRotationAmount *= Quaternion.Euler(rotationAxis * rotateAmount);
                     }
                 }
-
+                hasChanged = true;
                 previousMousePosition = mousePosition;
 
                 yield return null;

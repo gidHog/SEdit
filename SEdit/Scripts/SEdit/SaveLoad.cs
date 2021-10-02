@@ -17,7 +17,7 @@ namespace OwlcatModification.Modifications.SEdit
         private static readonly LogChannel Channel = LogChannelFactory.GetOrCreate("SEdit.SaveLoad");
 
         public static SaveLoad instance { get; set; }
-        public static string savePath { get; set; } = "";  SEditUserData userData = new SEditUserData();
+        public static string savePath { get; set; } = ""; SEditUserData userData = new SEditUserData();
 
         Dictionary<string, List<SEditData>> sEditDataDictionary { get; set; } = new Dictionary<string, List<SEditData>>();
 
@@ -376,7 +376,7 @@ namespace OwlcatModification.Modifications.SEdit
                     }
                     else
                     {
-                        Utils.LogError("SaveLoad",$"Scenecheck <= 0 || sceneEditor = {SceneEditor.instance == null} ");
+                        Utils.LogError("SaveLoad", $"Scenecheck <= 0 || sceneEditor = {SceneEditor.instance == null} ");
                     }
                 }
                 else
